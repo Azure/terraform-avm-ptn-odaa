@@ -221,7 +221,7 @@ DESCRIPTION
 
 # tflint-ignore: terraform_unused_declarations
 variable "tags" {
-  type        = map(string)
+  type = map(string)
   default = {
     scenario = "ODAA Terraform Deployment"
   }
@@ -241,7 +241,7 @@ variable "virtual_networks" {
       enforcement = string
     }), null)
     flow_timeout_in_minutes = optional(number, null)
-    resource_group_name  = optional(string, null)
+    resource_group_name     = optional(string, null)
     subnet = optional(set(object({
       delegate_to_oracle = bool
       address_prefixes   = list(string)
@@ -283,24 +283,24 @@ variable "route_tables" {
     })), null)
   }))
   description = "Route tables for Exadata appliance vnets/subnets"
-  default = {}
+  default     = {}
 }
 
 variable "cloud_exadata_infrastructure" {
   type = map(object({
-    name = string
-    location = string
-    zone = optional(string, null)
-    compute_count = number
-    display_name = string
+    name                                 = string
+    location                             = string
+    zone                                 = optional(string, null)
+    compute_count                        = number
+    display_name                         = string
     maintenance_window_loadtime_in_weeks = string
-    maintenance_window_preference = string
-    maintenance_window_patching_mode = string
-    shape = string
-    storage_count = number
-    tags = optional(map(string), null)
+    maintenance_window_preference        = string
+    maintenance_window_patching_mode     = string
+    shape                                = string
+    storage_count                        = number
+    tags                                 = optional(map(string), null)
   }))
-  default = {}
+  default     = {}
   description = <<DESCRIPTION
   Cloud Exadata Infrastructure resources  
 
@@ -320,20 +320,20 @@ DESCRIPTION
 
 variable "cloud_exadata_vm_cluster" {
   type = map(object({
-    cluster_name = string
-    display_name = string
-    data_storage_size_in_tbs = number
-    dbnode_storage_size_in_gbs = number
-    time_zone = string
-    hostname = string
-    domain = string
-    cpu_core_count = number
-    ocpu_count = number
-    data_storage_percentage = number
-    is_local_backup_enabled = bool
+    cluster_name                    = string
+    display_name                    = string
+    data_storage_size_in_tbs        = number
+    dbnode_storage_size_in_gbs      = number
+    time_zone                       = string
+    hostname                        = string
+    domain                          = string
+    cpu_core_count                  = number
+    ocpu_count                      = number
+    data_storage_percentage         = number
+    is_local_backup_enabled         = bool
     cloud_exadata_infrastructure_id = string
-    is_sparse_diskgroup_enabled = bool
-    ssh_public_keys = string
+    is_sparse_diskgroup_enabled     = bool
+    ssh_public_keys                 = string
     nsg_cidrs = optional(set(object({
       source = string
       destination_port_range = optional(set(object({
@@ -341,18 +341,18 @@ variable "cloud_exadata_vm_cluster" {
         max = string
       })), null)
     })), null)
-    license_model = string
-    scan_listener_port_tcp = number
-    scan_listener_port_tcp_ssl = number
-    vnet_id = string
-    gi_version = string
-    subnet_id = string
-    backup_subnet_cidr = string
-    is_diagnostic_events_enabled = optional(bool,false)
-    is_health_monitoring_enabled =  optional(bool,false)
-    is_incident_logs_enabled     =  optional(bool,false)
+    license_model                = string
+    scan_listener_port_tcp       = number
+    scan_listener_port_tcp_ssl   = number
+    vnet_id                      = string
+    gi_version                   = string
+    subnet_id                    = string
+    backup_subnet_cidr           = string
+    is_diagnostic_events_enabled = optional(bool, false)
+    is_health_monitoring_enabled = optional(bool, false)
+    is_incident_logs_enabled     = optional(bool, false)
   }))
-  default = {}
+  default     = {}
   description = <<DESCRIPTION
   Cloud Exadata VM Cluster resources
 
