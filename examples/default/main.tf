@@ -49,11 +49,22 @@ resource "azurerm_resource_group" "this" {
 # with a data source.
 module "test" {
   source = "../../"
-  # source             = "Azure/avm-<res/ptn>-<name>/azurerm"
-  # ...
   location            = azurerm_resource_group.this.location
-  name                = "TODO" # TODO update with module.naming.<RESOURCE_TYPE>.name_unique
+  name                = "odaa-primary-az"
   resource_group_name = azurerm_resource_group.this.name
 
+  virtual_networks = {
+    primaryvnet = {
+      name          = "vnet-odaa"
+      address_space = ["10.0.0.0/16"]
+      subnet = [
+        {
+          name                  = "snet-odaa"
+          address_prefixes      = ["10.0.0.0/24"]
+          delegate_to_oracle    = true
+          associate_route_table = false
+      }]
+    }
+  }
   enable_telemetry = var.enable_telemetry # see variables.tf
 }
