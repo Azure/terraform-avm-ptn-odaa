@@ -9,7 +9,12 @@ resource "azapi_resource" "cloudVmCluster" {
   parent_id                 = azurerm_resource_group.rg.id
   name                      = "odaa-cluster"
   schema_validation_enabled = false
-  
+
+  timeouts {
+    create = "1h30m"
+    delete = "20m"
+  }
+
   body = jsonencode({
     "properties" : {
       "dataStorageSizeInTbs" : 1000,
@@ -61,5 +66,5 @@ resource "azapi_resource" "cloudVmCluster" {
     }
   )
   response_export_values = ["properties.ocid"]
-  depends_on                = [azapi_resource.odaa_infra]
+  depends_on             = [azapi_resource.odaa_infra]
 }

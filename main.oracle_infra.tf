@@ -12,6 +12,12 @@ resource "azapi_resource" "odaa_infra" {
   type      = "Oracle.Database/cloudExadataInfrastructures@2023-09-01-preview"
   parent_id = azurerm_resource_group.rg.id
   name      = "odaa-infra"
+
+  timeouts {
+    create = "1h30m"
+    delete = "20m"
+  }
+
   body = jsonencode({
     "location" : var.cloud_exadata_infrastructure.location,
     "zones" : [
