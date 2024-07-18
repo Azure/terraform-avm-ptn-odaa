@@ -7,7 +7,6 @@ variable "location" {
 variable "name" {
   type        = string
   description = "The name of the this resource."
-
 }
 
 # This is required for most resource modules
@@ -293,6 +292,7 @@ variable "cloud_exadata_infrastructure" {
     zone                                 = optional(string, null)
     compute_count                        = number
     display_name                         = string
+    createdby                            = string
     maintenance_window_loadtime_in_weeks = string
     maintenance_window_preference        = string
     maintenance_window_patching_mode     = string
@@ -383,4 +383,14 @@ variable "cloud_exadata_vm_cluster" {
   - `is_incident_logs_enabled` - (Optional) The incident logs enabled status of the Cloud Exadata VM Cluster.
 
 DESCRIPTION
+}
+
+
+variable "prefix" {
+  type        = string
+  description = "Prefix of the name under 6 characters"
+  validation {
+    condition     = length(var.prefix) < 6 && lower(var.prefix) == var.prefix
+    error_message = "The prefix value must be lowercase and < 5 chars."
+  }
 }
