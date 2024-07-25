@@ -23,7 +23,7 @@ module "odaa_vnets" {
       ] : []
     }
   }
-  resource_group_name = var.resource_group_name
+  resource_group_name = local.full_resource_group_name
 
 depends_on = [ azurerm_resource_group.rg ]
 }

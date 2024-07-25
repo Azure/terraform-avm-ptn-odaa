@@ -1,8 +1,11 @@
 # TODO: insert locals here.
 locals {
 
-  prefix = var.prefix == "" ? random_string.prefix.result : var.prefix
-nameprefix="asdaw"
+  prefix     = var.prefix == "" ? random_string.prefix.result : var.prefix
+  nameprefix = "asdaw"
+
+
+  full_resource_group_name = "${var.resource_group_name}-${local.prefix}"
 
   managed_identities = {
     system_assigned_user_assigned = (var.managed_identities.system_assigned || length(var.managed_identities.user_assigned_resource_ids) > 0) ? {
@@ -37,44 +40,9 @@ nameprefix="asdaw"
   role_definition_resource_substring = "/providers/Microsoft.Authorization/roleDefinitions"
 
 
-   odaa_infra_config = {
-    location : var.location,
-    name : var.odaa_infra_name,
-    zone : var.odaa_infra_zone,
-    compute_count : var.odaa_infra_compute_count,
-
-    display_name : var.odaa_infra_display_name == "" ? var.odaa_infra_name : var.odaa_infra_display_name,
-    storage_count : var.odaa_infra_storage_count,
-    shape : var.odaa_infra_shape,
-    maintenance_window_leadtime_in_weeks = var.odaa_infra_maintenance_window_leadtime_in_weeks,
-    maintenance_window_preference        = var.odaa_infra_maintenance_window_preference
-    maintenance_window_patching_mode     = var.odaa_infra_maintenance_window_patching_mode
-    createdby                            = var.odaa_infra_createdby == "" ? tostring(data.azurerm_client_config.current.object_id) : var.odaa_infra_createdby
-  }
 
 
-odaa_vm_cluster_config={
-  cluster_name : "${var.odaa_vm_cluster_name}",
-  display_name : var.odaa_vm_cluster_name== "" ? "${var.odaa_vm_cluster_name}" : var.odaa_cluster_display_name,
-  data_storage_size_in_tbs   = var.odaa_cluster_data_storage_size_in_tbs,
-  dbnode_storage_size_in_gbs = var.odaa_cluster_dbnode_storage_size_in_gbs,
-  time_zone                  = var.odaa_cluster_time_zone,
-  memory_size_in_gbs         = var.odaa_cluster_memory_size_in_gbs,
-  hostname : var.odaa_cluster_hostname,
-  cpu_core_count : var.odaa_cluster_cpu_core_count,
-  data_storage_percentage : var.odaa_cluster_data_storage_percentage,
-  is_local_backup_enabled = var.odaa_cluster_is_local_backup_enabled,
-  is_sparse_diskgroup_enabled : var.odaa_cluster_is_sparse_diskgroup_enabled,
-  license_model : var.odaa_cluster_license_model,
-  gi_version : var.odaa_cluster_gi_version,
-  is_diagnostic_events_enabled : var.odaa_cluster_is_diagnostic_events_enabled,
-  is_health_monitoring_enabled : var.odaa_cluster_is_health_monitoring_enabled,
-  is_incident_logs_enabled : var.odaa_cluster_is_incident_logs_enabled,
-  backup_subnet_cidr : var.odaa_cluster_backup_subnet_cidr
-  domain : var.odaa_cluster_domain, # seems to not be required
-  nsg_cidrs: var.odaa_cluster_nsg_cidrs,
-  
-}
+
 
   # default_cloud_exadata_vm_cluster = {
   #   cluster_name : "${var.odaa_vm_cluster_name}-${var.prefix}",

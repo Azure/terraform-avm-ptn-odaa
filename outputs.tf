@@ -11,3 +11,8 @@ output "resource" {
   description = "This is the full output for the resource."
   value       = module.odaa_vnets
 }
+
+
+output "odaa_infra_instances" {
+  value = { for k, v in azapi_resource.odaa_infra : k => v.id }
+}
