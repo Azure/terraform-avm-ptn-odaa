@@ -2,12 +2,12 @@
 //-------------VMCluster resources ------------
 // OperationId: CloudVmClusters_CreateOrUpdate, CloudVmClusters_Get, CloudVmClusters_Delete
 // PUT GET DELETE /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Oracle.Database/cloudVmClusters/{cloudvmclustername}
-resource "azapi_resource" "cloudVmCluster" {
+resource "azapi_resource" "odaa_vm_cluster" {
 
 
   type                      = "Oracle.Database/cloudVmClusters@2023-09-01-preview"
   parent_id                 = azurerm_resource_group.rg.id
-  name                      = "odaa-cluster-${local.prefix}"
+  name                      = local.odaa_vm_cluster_config.cluster_name
   schema_validation_enabled = false
 
   timeouts {
@@ -17,47 +17,39 @@ resource "azapi_resource" "cloudVmCluster" {
 
   body = jsonencode({
     "properties" : {
-      "dataStorageSizeInTbs" : var.cloud_exadata_vm_cluster.data_storage_size_in_tbs,
-      "dbNodeStorageSizeInGbs" : var.cloud_exadata_vm_cluster.dbnode_storage_size_in_gbs,
-      "memorySizeInGbs" : var.cloud_exadata_vm_cluster.memory_size_in_gbs,
-      "timeZone" : var.cloud_exadata_vm_cluster.time_zone,
-      "hostname" : var.cloud_exadata_vm_cluster.hostname,
-      #"domain" : "domain1",
-      "cpuCoreCount" : var.cloud_exadata_vm_cluster.cpu_core_count,
+      "dataStorageSizeInTbs" : local.odaa_vm_cluster_config.data_storage_size_in_tbs,
+      "dbNodeStorageSizeInGbs" : local.odaa_vm_cluster_config.dbnode_storage_size_in_gbs,
+      "memorySizeInGbs" : local.odaa_vm_cluster_config.memory_size_in_gbs,
+      "timeZone" : local.odaa_vm_cluster_config.time_zone,
+      "hostname" : local.odaa_vm_cluster_config.hostname,
+      "domain" : local.odaa_vm_cluster_config.domain,
+      "cpuCoreCount" : local.odaa_vm_cluster_config.cpu_core_count,
       #"ocpuCount" : 3,
-      "clusterName" : var.cloud_exadata_vm_cluster.name,
-      "dataStoragePercentage" : var.cloud_exadata_vm_cluster.data_storage_percentage,
-      "isLocalBackupEnabled" : var.cloud_exadata_vm_cluster.is_local_backup_enabled,
+      "clusterName" : local.odaa_vm_cluster_config.cluster_name,
+      "dataStoragePercentage" : local.odaa_vm_cluster_config.data_storage_percentage,
+      "isLocalBackupEnabled" : local.odaa_vm_cluster_config.is_local_backup_enabled,
       "cloudExadataInfrastructureId" : "${azapi_resource.odaa_infra.id}",
-      "isSparseDiskgroupEnabled" : var.cloud_exadata_vm_cluster.is_sparse_diskgroup_enabled,
+      "isSparseDiskgroupEnabled" : local.odaa_vm_cluster_config.is_sparse_diskgroup_enabled,
       "sshPublicKeys" : [
-        var.cloud_exadata_vm_cluster.ssh_public_keys
+        "${azapi_resource.ssh_public_key.id}"
       ],
-      # "nsgCidrs" : [
-      #   {
-      #     "source" : "10.0.0.0/16",
-      #     "destinationPortRange" : {
-      #       "min" : 1520,
-      #       "max" : 1522
-      #     }
-      #   },
-      #   {
-      #     "source" : "10.10.0.0/24"
-      #   }
-      # ],
-      "licenseModel" : var.cloud_exadata_vm_cluster.license_model,
+
+      "nsgCidrs": local.odaa_vm_cluster_config.nsgCidrs,
+
+   
+      "licenseModel" : local.odaa_vm_cluster_config.license_model,
       #"scanListenerPortTcp" : 1050,
       #"scanListenerPortTcpSsl" : 1025,
-      "vnetId" : var.cloud_exadata_vm_cluster.vnet_id,
-      "giVersion" : var.cloud_exadata_vm_cluster.gi_version,
-      "subnetId" : var.cloud_exadata_vm_cluster.subnet_id,
+      "vnetId" : module.odaa_vnets["primaryvnet"].virtual_network_id,
+      "giVersion" : local.odaa_vm_cluster_config.gi_version,
+      "subnetId" : module.odaa_vnets["primaryvnet"].subnets["snet-odaa"].id,
       #"backupSubnetCidr" : "172.17.5.0/24",
       "dataCollectionOptions" : {
-        "isDiagnosticsEventsEnabled" : var.cloud_exadata_vm_cluster.is_diagnostic_events_enabled,
-        "isHealthMonitoringEnabled" : var.cloud_exadata_vm_cluster.is_health_monitoring_enabled,
-        "isIncidentLogsEnabled" : var.cloud_exadata_vm_cluster.is_incident_logs_enabled
+        "isDiagnosticsEventsEnabled" : local.odaa_vm_cluster_config.is_diagnostic_events_enabled,
+        "isHealthMonitoringEnabled" : local.odaa_vm_cluster_config.is_health_monitoring_enabled,
+        "isIncidentLogsEnabled" : local.odaa_vm_cluster_config.is_incident_logs_enabled
       },
-      "displayName" : var.cloud_exadata_vm_cluster.display_name,
+      "displayName" : local.odaa_vm_cluster_config.display_name,
       # "dbServers" : [
       #   "ocid1..aaaa"
       # ]

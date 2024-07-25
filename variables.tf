@@ -4,10 +4,7 @@ variable "location" {
   nullable    = false
 }
 
-variable "name" {
-  type        = string
-  description = "The name of the this resource."
-}
+
 
 # This is required for most resource modules
 variable "resource_group_name" {
@@ -285,106 +282,6 @@ variable "route_tables" {
   default     = {}
 }
 
-variable "cloud_exadata_infrastructure" {
-  type = map(object({
-    name                                 = string
-    location                             = string
-    zone                                 = optional(string, null)
-    compute_count                        = number
-    display_name                         = string
-    createdby                            = string
-    maintenance_window_loadtime_in_weeks = string
-    maintenance_window_preference        = string
-    maintenance_window_patching_mode     = string
-    shape                                = string
-    storage_count                        = number
-    tags                                 = optional(map(string), null)
-  }))
-  default     = {}
-  description = <<DESCRIPTION
-  Cloud Exadata Infrastructure resources  
-
-  - `name` - The name of the Cloud Exadata Infrastructure.
-  - `location` - The location of the Cloud Exadata Infrastructure.
-  - `zone` - (Optional) The availability zone of the Cloud Exadata Infrastructure.
-  - `compute_count` - The number of compute nodes in the Cloud Exadata Infrastructure.
-  - `display_name` - The display name of the Cloud Exadata Infrastructure.
-  - `maintenance_window_loadtime_in_weeks` - The maintenance window load time in weeks.
-  - `maintenance_window_preference` - The maintenance window preference.
-  - `maintenance_window_patching_mode` - The maintenance window patching mode.
-  - `shape` - The shape of the Cloud Exadata Infrastructure.
-  - `storage_count` - The number of storage servers in the Cloud Exadata Infrastructure.
-  - `tags` - (Optional) A mapping of tags to assign to the Cloud Exadata Infrastructure.
-DESCRIPTION
-}
-
-variable "cloud_exadata_vm_cluster" {
-  type = map(object({
-    cluster_name                    = string
-    display_name                    = string
-    data_storage_size_in_tbs        = number
-    dbnode_storage_size_in_gbs      = number
-    time_zone                       = string
-    hostname                        = string
-    domain                          = string
-    cpu_core_count                  = number
-    ocpu_count                      = number
-    data_storage_percentage         = number
-    is_local_backup_enabled         = bool
-    cloud_exadata_infrastructure_id = string
-    is_sparse_diskgroup_enabled     = bool
-    ssh_public_keys                 = string
-    nsg_cidrs = optional(set(object({
-      source = string
-      destination_port_range = optional(set(object({
-        min = string
-        max = string
-      })), null)
-    })), null)
-    license_model                = string
-    scan_listener_port_tcp       = number
-    scan_listener_port_tcp_ssl   = number
-    vnet_id                      = string
-    gi_version                   = string
-    subnet_id                    = string
-    backup_subnet_cidr           = string
-    is_diagnostic_events_enabled = optional(bool, false)
-    is_health_monitoring_enabled = optional(bool, false)
-    is_incident_logs_enabled     = optional(bool, false)
-  }))
-  default     = {}
-  description = <<DESCRIPTION
-  Cloud Exadata VM Cluster resources
-
-  - `cluster_name` - The name of the Cloud Exadata VM Cluster.
-  - `display_name` - The display name of the Cloud Exadata VM Cluster.
-  - `data_storage_size_in_tbs` - The data storage size in TBs.
-  - `dbnode_storage_size_in_gbs` - The DB node storage size in GBs.
-  - `time_zone` - The time zone of the Cloud Exadata VM Cluster.
-  - `hostname` - The hostname of the Cloud Exadata VM Cluster.
-  - `domain` - The domain of the Cloud Exadata VM Cluster.
-  - `cpu_core_count` - The CPU core count of the Cloud Exadata VM Cluster.
-  - `ocpu_count` - The OCPU count of the Cloud Exadata VM Cluster.
-  - `data_storage_percentage` - The data storage percentage of the Cloud Exadata VM Cluster.
-  - `is_local_backup_enabled` - The local backup enabled status of the Cloud Exadata VM Cluster.
-  - `cloud_exadata_infrastructure_id` - The Cloud Exadata Infrastructure ID of the Cloud Exadata VM Cluster.
-  - `is_sparse_diskgroup_enabled` - The sparse diskgroup enabled status of the Cloud Exadata VM Cluster.
-  - `ssh_public_keys` - The SSH public keys of the Cloud Exadata VM Cluster.
-  - `nsg_cidrs` - (Optional) A set of NSG CIDRs of the Cloud Exadata VM Cluster.
-  - `license_model` - The license model of the Cloud Exadata VM Cluster.
-  - `scan_listener_port_tcp` - The scan listener port TCP of the Cloud Exadata VM Cluster.
-  - `scan_listener_port_tcp_ssl` - The scan listener port TCP SSL of the Cloud Exadata VM Cluster.
-  - `vnet_id` - The VNet ID of the Cloud Exadata VM Cluster.
-  - `gi_version` - The GI version of the Cloud Exadata VM Cluster.
-  - `subnet_id` - The subnet ID of the Cloud Exadata VM Cluster.
-  - `backup_subnet_cidr` - The backup subnet CIDR of the Cloud Exadata VM Cluster.
-  - `is_diagnostic_events_enabled` - (Optional) The diagnostic events enabled status of the Cloud Exadata VM Cluster.
-  - `is_health_monitoring_enabled` - (Optional) The health monitoring enabled status of the Cloud Exadata VM Cluster.
-  - `is_incident_logs_enabled` - (Optional) The incident logs enabled status of the Cloud Exadata VM Cluster.
-
-DESCRIPTION
-}
-
 
 variable "prefix" {
   type        = string
@@ -394,3 +291,283 @@ variable "prefix" {
     error_message = "The prefix value must be lowercase and < 5 chars."
   }
 }
+
+############################################################################################################
+##################### Cloud Exadata Infrastructure variables
+############################################################################################################
+variable "odaa_infra_name" {
+  type        = string
+  description = "The name of the infrastructure."
+}
+
+variable "odaa_infra_zone" {
+  type        = string
+  description = "The availability zone of the infrastructure."
+}
+
+variable "odaa_infra_compute_count" {
+  type        = number
+  description = "The number of compute nodes in the infrastructure."
+}
+
+variable "odaa_infra_display_name" {
+  type        = string
+  description = "The display name of the infrastructure."
+}
+
+variable "odaa_infra_createdby" {
+  type        = string
+  description = "The createdby property of the infrastructure."
+}
+
+variable "odaa_infra_maintenance_window_leadtime_in_weeks" {
+  type        = number
+  description = "The maintenance window load time in weeks."
+  default = 0
+}
+
+variable "odaa_infra_maintenance_window_preference" {
+  type        = string
+  description = "The maintenance window preference."
+  default = "NoPreference"
+  
+}
+
+variable "odaa_infra_maintenance_window_patching_mode" {
+  type        = string
+  description = "The maintenance window patching mode."
+  default = "Rolling"
+}
+
+variable "odaa_infra_shape" {
+  type        = string
+  description = "The shape of the infrastructure."
+  default = "Exadata.X9M"
+}
+
+variable "odaa_infra_storage_count" {
+  type        = number
+  description = "The number of storage servers in the infrastructure."
+}
+
+variable "odaa_vm_cluster_name" {
+  type        = string
+  description = "The name of the this resource."
+}
+
+# variable "cloud_exadata_infrastructure" {
+#   type = object({
+#     name                                 = string
+#     location                             = string
+#     zone                                 = optional(string, null)
+#     compute_count                        = number
+#     display_name                         = string
+#     createdby                            = string
+#     maintenance_window_loadtime_in_weeks = number
+#     maintenance_window_preference        = string
+#     maintenance_window_patching_mode     = string
+#     shape                                = string
+#     storage_count                        = number
+#     tags                                 = optional(map(string), null)
+#   })
+#   nullable = true
+#   default = null
+#   description = <<DESCRIPTION
+#   Cloud Exadata Infrastructure resources  
+
+#   - `name` - The name of the Cloud Exadata Infrastructure.
+#   - `location` - The location of the Cloud Exadata Infrastructure.
+#   - `zone` - (Optional) The availability zone of the Cloud Exadata Infrastructure.
+#   - `compute_count` - The number of compute nodes in the Cloud Exadata Infrastructure.
+#   - `display_name` - The display name of the Cloud Exadata Infrastructure.
+#   - `maintenance_window_loadtime_in_weeks` - The maintenance window load time in weeks.
+#   - `maintenance_window_preference` - The maintenance window preference.
+#   - `maintenance_window_patching_mode` - The maintenance window patching mode.
+#   - `shape` - The shape of the Cloud Exadata Infrastructure.
+#   - `storage_count` - The number of storage servers in the Cloud Exadata Infrastructure.
+#   - `tags` - (Optional) A mapping of tags to assign to the Cloud Exadata Infrastructure.
+# DESCRIPTION
+# }
+
+############################################################################################################
+##################### Cloud Exadata VM Cliuster variables
+############################################################################################################
+
+variable "odaa_cluster_name" {
+  type        = string
+  description = "The name of the cluster."
+}
+
+variable "odaa_cluster_display_name" {
+  type        = string
+  description = "The display name of the cluster."
+}
+
+variable "odaa_cluster_data_storage_size_in_tbs" {
+  type        = number
+  description = "The data storage size in TBs."
+}
+
+variable "odaa_cluster_dbnode_storage_size_in_gbs" {
+  type        = number
+  description = "The DB node storage size in GBs."  
+}
+
+variable "odaa_cluster_time_zone" {
+  type        = string
+  description = "The time zone of the cluster."
+  default = "UTC"
+}
+
+#Is this the total memory size of the cluster or the amount of memory per VM?
+variable "odaa_cluster_memory_size_in_gbs" {
+  type        = number
+  description = "The memory size in GBs."
+}
+
+variable "odaa_cluster_hostname" {
+  type        = string
+  description = "The hostname of the cluster."
+}
+
+variable "odaa_cluster_domain" {
+  type        = string
+  description = "The domain of the cluster."
+  default = "domain1"
+}
+
+variable "odaa_cluster_cpu_core_count" {
+  type        = number
+  description = "The CPU core count of the cluster."
+}
+
+# variable "odaa_cluster_ocpu_count" {
+#   type        = optional(number)
+#   description = "The OCPU count of the cluster."
+# }
+
+variable "odaa_cluster_data_storage_percentage" {
+  type        = number
+  description = "The data storage percentage of the cluster."
+  default = 100
+
+  validation {
+    condition     = var.odaa_cluster_data_storage_percentage >= 0 && var.odaa_cluster_data_storage_percentage <= 100
+    error_message = "The percentage must be a number between 0 and 100."
+  }
+}
+
+variable "odaa_cluster_is_local_backup_enabled" {
+  type        = bool
+  description = "The local backup enabled status of the cluster."
+  default = false
+}
+
+variable "odaa_cluster_is_sparse_diskgroup_enabled" {
+  type        = bool
+  description = "The sparse diskgroup enabled status of the cluster."
+  default = false
+}
+
+variable "odaa_cluster_ssh_public_keys" {
+  type        = string
+  description = "The SSH public keys of the cluster."
+}
+
+variable "odaa_cluster_nsg_cidrs" {
+  type        = set(object({
+    source = string
+    destination_port_range = optional(set(object({
+      min = string
+      max = string
+    })), null)
+  }))
+  description = "A set of NSG CIDRs of the cluster." 
+}
+
+variable "odaa_cluster_license_model" {
+  type        = string
+  description = "The license model of the cluster."
+  default = "LicenseIncluded"
+
+  validation {
+    condition     = var.odaa_cluster_license_model == "LicenseIncluded" || var.odaa_cluster_license_model == "BringYourOwnLicense"
+    error_message = "The license model must be either 'LicenseIncluded' or 'BringYourOwnLicense'."
+  }
+}
+
+variable "odaa_cluster_gi_version" {
+  type        = string
+  description = "The GI version of the cluster."
+  default = "19.0.0.0"
+
+  validation {
+    condition     = can(regex("^(\\d+\\.){2}\\d+\\.\\d+$", var.odaa_cluster_gi_version))
+    error_message = "The GI version must be in the format 'XX.XX.XX.XX'."
+  }
+}
+
+variable "odaa_cluster_backup_subnet_cidr" {
+  type        = string
+  description = "The backup subnet CIDR of the cluster."
+
+  validation {
+    condition     = can(regex("^(\\d+\\.){3}\\d+\\/\\d+$", var.odaa_cluster_backup_subnet_cidr))
+    error_message = "The backup subnet CIDR must be in the format 'XXX.XXX.XXX.XXX/XX'."
+  }
+}
+variable "odaa_cluster_is_diagnostic_events_enabled" {
+  type        = bool
+  description = "The diagnostic events enabled status of the cluster."
+  default = false
+}
+
+variable "odaa_cluster_is_health_monitoring_enabled" {
+  type        = bool
+  description = "The health monitoring enabled status of the cluster."
+  default = false
+}
+
+variable "odaa_cluster_is_incident_logs_enabled" {
+  type        = bool
+  description = "The incident logs enabled status of the cluster."
+  default = false
+}
+
+# variable "cloud_exadata_vm_cluster" {
+#   type = object({
+#     cluster_name                    = string
+#     display_name                    = string
+#     data_storage_size_in_tbs        = number
+#     dbnode_storage_size_in_gbs      = number
+#     memory_size_in_gbs              = number
+#     time_zone                       = string
+#     hostname                        = string
+#     domain                          = string
+#     cpu_core_count                  = number
+#     ocpu_count                      = number
+#     data_storage_percentage         = number
+#     is_local_backup_enabled         = bool
+#     cloud_exadata_infrastructure_id = string
+#     is_sparse_diskgroup_enabled     = bool
+#     ssh_public_keys                 = string
+#     nsg_cidrs = optional(set(object({
+#       source = string
+#       destination_port_range = optional(set(object({
+#         min = string
+#         max = string
+#       })), null)
+#     })), null)
+#     license_model                = string
+#     scan_listener_port_tcp       = number
+#     scan_listener_port_tcp_ssl   = number
+#     vnet_id                      = string
+#     gi_version                   = string
+#     subnet_id                    = string
+#     backup_subnet_cidr           = optional(string, null)
+#     is_diagnostic_events_enabled = optional(bool, false)
+#     is_health_monitoring_enabled = optional(bool, false)
+#     is_incident_logs_enabled     = optional(bool, false)
+#   })
+  
+# }

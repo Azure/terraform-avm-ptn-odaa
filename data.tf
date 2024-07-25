@@ -6,3 +6,5 @@ resource "random_string" "prefix" {
 }
 
 data "azurerm_client_config" "current" {}
+
+
