@@ -14,10 +14,11 @@ module "naming" {
 
 locals {
   location         = "eastus"
-  zones= "1"
+  zones            = "1"
   enable_telemetry = true
   tags = {
     scenario = "Default"
+    delete   = "yes"
   }
 }
 
@@ -32,11 +33,12 @@ resource "random_string" "suffix" {
 resource "azurerm_resource_group" "this" {
   location = local.location
   name     = module.naming.resource_group.name_unique
+  tags     = local.tags
 }
 
 # data "azurerm_resource_group" "this" {
 #   name = azurerm_resource_group.this.id
-  
+
 # }
 
 resource "tls_private_key" "generated_ssh_key" {
@@ -72,7 +74,7 @@ module "test-default" {
   source              = "../../"
   location            = local.location
   resource_group_name = azurerm_resource_group.this.name
-
+  tags                = local.tags
 
   enable_telemetry = local.enable_telemetry
 
@@ -121,7 +123,7 @@ module "test-default" {
         .output).value[1].properties.ocid
       ]
 
-      cluster_name : "odaa-cluster-${random_string.suffix.result}"
+      cluster_name : "odaa-cl"
       display_name : "odaa-cluster-${random_string.suffix.result}"
       data_storage_size_in_tbs   = 2
       dbnode_storage_size_in_gbs = 120
@@ -137,7 +139,7 @@ module "test-default" {
       is_diagnostic_events_enabled : false,
       is_health_monitoring_enabled : false,
       is_incident_logs_enabled : false,
-      backup_subnet_cidr : ""
+      backup_subnet_cidr : "172.17.5.0/24"
       ocpu_count : 3, # seems to not be required
       #nsg_cidrs: ????
       #backup_subnet_cidr: TEST THIS!
