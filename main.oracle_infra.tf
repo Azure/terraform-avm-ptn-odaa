@@ -1,8 +1,6 @@
-resource "azurerm_resource_group" "rg" {
-  name     = local.full_resource_group_name
-  location = var.location
-  tags     = var.tags
-}
+
+
+
 
 
 // OperationId: CloudExadataInfrastructures_CreateOrUpdate, CloudExadataInfrastructures_Get, CloudExadataInfrastructures_Delete
@@ -11,7 +9,7 @@ resource "azapi_resource" "odaa_infra" {
   for_each = var.cloud_exadata_infrastructure
 
   type      = "Oracle.Database/cloudExadataInfrastructures@2023-09-01-preview"
-  parent_id = azurerm_resource_group.rg.id
+  parent_id = data.azurerm_resource_group.rg.id
   name      = each.value.name
 
   timeouts {
@@ -40,6 +38,8 @@ resource "azapi_resource" "odaa_infra" {
     }
   })
   schema_validation_enabled = false
+
+  depends_on = [ data.azurerm_resource_group.rg ]
 }
 
 
@@ -58,7 +58,7 @@ data "azapi_resource" "odaa_infra" {
   for_each = azapi_resource.odaa_infra
 
   type      = "Oracle.Database/cloudExadataInfrastructures@2023-09-01-preview"
-  parent_id = azurerm_resource_group.rg.id
+  parent_id = data.azurerm_resource_group.rg.id
   name      = each.value.name
 }
 

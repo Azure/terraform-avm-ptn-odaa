@@ -4,8 +4,6 @@ variable "location" {
   nullable    = false
 }
 
-
-
 # This is required for most resource modules
 variable "resource_group_name" {
   type        = string
@@ -283,13 +281,13 @@ variable "route_tables" {
 }
 
 
-variable "prefix" {
+variable "suffix" {
   type        = string
-  description = "Prefix of the name under 6 characters"
+  description = "Suffix of the name under 6 characters"
   default = ""
   validation {
-    condition     = length(var.prefix) < 6 && lower(var.prefix) == var.prefix
-    error_message = "The prefix value must be lowercase and < 5 chars."
+    condition     = length(var.suffix) < 6 && lower(var.suffix) == var.suffix
+    error_message = "The Suffix value must be lowercase and < 6 chars."
   }
 }
 
@@ -334,69 +332,67 @@ DESCRIPTION
 ##################### Cloud Exadata VM Cliuster variables
 ############################################################################################################
 
-# variable "cloud_exadata_vm_cluster" {
-#   type = map(object({
-#     cluster_name                    = string
-#     display_name                    = string
-#     data_storage_size_in_tbs        = number
-#     dbnode_storage_size_in_gbs      = number
-#     time_zone                       = string
-#     hostname                        = string
-#     domain                          = string
-#     cpu_core_count                  = number
-#     ocpu_count                      = number
-#     data_storage_percentage         = number
-#     is_local_backup_enabled         = bool
-#     cloud_exadata_infrastructure_id = string
-#     is_sparse_diskgroup_enabled     = bool
-#     ssh_public_keys                 = string
-#     nsg_cidrs = optional(set(object({
-#       source = string
-#       destination_port_range = optional(set(object({
-#         min = string
-#         max = string
-#       })), null)
-#     })), null)
-#     license_model                = string
-#     scan_listener_port_tcp       = number
-#     scan_listener_port_tcp_ssl   = number
-#     vnet_id                      = string
-#     gi_version                   = string
-#     subnet_id                    = string
-#     backup_subnet_cidr           = string
-#     is_diagnostic_events_enabled = optional(bool, false)
-#     is_health_monitoring_enabled = optional(bool, false)
-#     is_incident_logs_enabled     = optional(bool, false)
-#   }))
-#   default     = {}
-#   description = <<DESCRIPTION
-#   Cloud Exadata VM Cluster resources
+variable "cloud_exadata_vm_cluster" {
+  type = map(object({
+    cluster_name                    = string
+    display_name                    = string
+    data_storage_size_in_tbs        = number
+    dbnode_storage_size_in_gbs      = number
+    time_zone                       = string
+    hostname                        = string
+    domain                          = optional(string,"")
+    cpu_core_count                  = number
+    memory_size_in_gbs              = number
+    ocpu_count                      = number
+    data_storage_percentage         = number
+    is_local_backup_enabled         = bool
+    cloud_exadata_infrastructure_id = string
+    is_sparse_diskgroup_enabled     = bool
+    ssh_public_keys                 = list(string)
+    db_servers                      = list(string)
+    nsg_cidrs = optional(set(object({
+      source = string
+      destination_port_range = optional(set(object({
+        min = string
+        max = string
+      })), null)
+    })), null)
+    license_model                = string
+    vnet_id                      = string
+    gi_version                   = string
+    subnet_id                    = string
+    backup_subnet_cidr           = string
+    is_diagnostic_events_enabled = optional(bool, false)
+    is_health_monitoring_enabled = optional(bool, false)
+    is_incident_logs_enabled     = optional(bool, false)
+  }))
+  default     = {}
+  description = <<DESCRIPTION
+  Cloud Exadata VM Cluster resources
 
-#   - `cluster_name` - The name of the Cloud Exadata VM Cluster.
-#   - `display_name` - The display name of the Cloud Exadata VM Cluster.
-#   - `data_storage_size_in_tbs` - The data storage size in TBs.
-#   - `dbnode_storage_size_in_gbs` - The DB node storage size in GBs.
-#   - `time_zone` - The time zone of the Cloud Exadata VM Cluster.
-#   - `hostname` - The hostname of the Cloud Exadata VM Cluster.
-#   - `domain` - The domain of the Cloud Exadata VM Cluster.
-#   - `cpu_core_count` - The CPU core count of the Cloud Exadata VM Cluster.
-#   - `ocpu_count` - The OCPU count of the Cloud Exadata VM Cluster.
-#   - `data_storage_percentage` - The data storage percentage of the Cloud Exadata VM Cluster.
-#   - `is_local_backup_enabled` - The local backup enabled status of the Cloud Exadata VM Cluster.
-#   - `cloud_exadata_infrastructure_id` - The Cloud Exadata Infrastructure ID of the Cloud Exadata VM Cluster.
-#   - `is_sparse_diskgroup_enabled` - The sparse diskgroup enabled status of the Cloud Exadata VM Cluster.
-#   - `ssh_public_keys` - The SSH public keys of the Cloud Exadata VM Cluster.
-#   - `nsg_cidrs` - (Optional) A set of NSG CIDRs of the Cloud Exadata VM Cluster.
-#   - `license_model` - The license model of the Cloud Exadata VM Cluster.
-#   - `scan_listener_port_tcp` - The scan listener port TCP of the Cloud Exadata VM Cluster.
-#   - `scan_listener_port_tcp_ssl` - The scan listener port TCP SSL of the Cloud Exadata VM Cluster.
-#   - `vnet_id` - The VNet ID of the Cloud Exadata VM Cluster.
-#   - `gi_version` - The GI version of the Cloud Exadata VM Cluster.
-#   - `subnet_id` - The subnet ID of the Cloud Exadata VM Cluster.
-#   - `backup_subnet_cidr` - The backup subnet CIDR of the Cloud Exadata VM Cluster.
-#   - `is_diagnostic_events_enabled` - (Optional) The diagnostic events enabled status of the Cloud Exadata VM Cluster.
-#   - `is_health_monitoring_enabled` - (Optional) The health monitoring enabled status of the Cloud Exadata VM Cluster.
-#   - `is_incident_logs_enabled` - (Optional) The incident logs enabled status of the Cloud Exadata VM Cluster.
+  - `cluster_name` - The name of the Cloud Exadata VM Cluster.
+  - `display_name` - The display name of the Cloud Exadata VM Cluster.
+  - `data_storage_size_in_tbs` - The data storage size in TBs.
+  - `dbnode_storage_size_in_gbs` - The DB node storage size in GBs.
+  - `time_zone` - The time zone of the Cloud Exadata VM Cluster.
+  - `hostname` - The hostname of the Cloud Exadata VM Cluster.
+  - `domain` - The domain of the Cloud Exadata VM Cluster.
+  - `cpu_core_count` - The CPU core count of the Cloud Exadata VM Cluster.
+  - `ocpu_count` - The OCPU count of the Cloud Exadata VM Cluster.
+  - `data_storage_percentage` - The data storage percentage of the Cloud Exadata VM Cluster.
+  - `is_local_backup_enabled` - The local backup enabled status of the Cloud Exadata VM Cluster.
+  - `cloud_exadata_infrastructure_id` - The Cloud Exadata Infrastructure ID of the Cloud Exadata VM Cluster.
+  - `is_sparse_diskgroup_enabled` - The sparse diskgroup enabled status of the Cloud Exadata VM Cluster.
+  - `ssh_public_keys` - The SSH public keys of the Cloud Exadata VM Cluster.
+  - `nsg_cidrs` - (Optional) A set of NSG CIDRs of the Cloud Exadata VM Cluster.
+  - `license_model` - The license model of the Cloud Exadata VM Cluster.
+  - `vnet_id` - The VNet ID of the Cloud Exadata VM Cluster.
+  - `gi_version` - The GI version of the Cloud Exadata VM Cluster.
+  - `subnet_id` - The subnet ID of the Cloud Exadata VM Cluster.
+  - `backup_subnet_cidr` - The backup subnet CIDR of the Cloud Exadata VM Cluster.
+  - `is_diagnostic_events_enabled` - (Optional) The diagnostic events enabled status of the Cloud Exadata VM Cluster.
+  - `is_health_monitoring_enabled` - (Optional) The health monitoring enabled status of the Cloud Exadata VM Cluster.
+  - `is_incident_logs_enabled` - (Optional) The incident logs enabled status of the Cloud Exadata VM Cluster.
 
-# DESCRIPTION
-# }
+DESCRIPTION
+}
