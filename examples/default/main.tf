@@ -51,11 +51,11 @@ resource "azapi_resource" "ssh_public_key" {
   name      = "odaa_ssh_key"
   location  = local.location
   parent_id = azurerm_resource_group.this.id
-  body = jsonencode({
+  body = {
     properties = {
       publicKey = "${tls_private_key.generated_ssh_key.public_key_openssh}"
     }
-  })
+  }
 }
 
 # This is the local file resource to store the private key
@@ -64,7 +64,12 @@ resource "local_file" "private_key" {
   content  = tls_private_key.generated_ssh_key.private_key_pem
 }
 
-
+#Log Analytics Workspace for Diagnostic Settings
+resource "azurerm_log_analytics_workspace" "this" {
+  location            = azurerm_resource_group.this.location
+  name                = module.naming.log_analytics_workspace.name_unique
+  resource_group_name = azurerm_resource_group.this.name
+}
 
 # This is the module call
 # Do not specify location here due to the randomization above.
@@ -113,8 +118,8 @@ module "test-default" {
     cluster_one = {
 
       cloud_exadata_infrastructure_id = module.test-default.odaa_infra_instances.primary
-      vnet_id                         = module.test-default.odaa_vnets.primaryvnet.virtual_network_id
-      subnet_id                       = module.test-default.odaa_vnets.primaryvnet.subnets.snet-odaa.id
+      vnet_id                         = module.test-default.odaa_vnets.primaryvnet.resource_id
+      subnet_id                       = module.test-default.odaa_vnets.primaryvnet.subnets.snet-odaa.resource_id
       ssh_public_keys                 = ["${tls_private_key.generated_ssh_key.public_key_openssh}"]
       db_servers = [
         jsondecode(data.azapi_resource_list.listDbServersByPrimaryCloudExadataInfrastructure
@@ -143,6 +148,17 @@ module "test-default" {
       ocpu_count : 3, # seems to not be required
       #nsg_cidrs: ????
       #backup_subnet_cidr: TEST THIS!
+    }
+  }
+
+  diagnostic_settings = {
+    sentToLogAnalytics={
+      name                           = "sendToLogAnalytics"
+      workspace_resource_id          = azurerm_log_analytics_workspace.this.id
+      log_analytics_destination_type = "Dedicated"
+      metric_categories              = ["AllMetrics"]
+      log_groups                     = ["AllLogs"]
+
     }
   }
 

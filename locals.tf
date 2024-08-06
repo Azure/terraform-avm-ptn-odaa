@@ -32,4 +32,45 @@ locals {
   ]) : "${assoc.pe_key}-${assoc.asg_key}" => assoc }
   role_definition_resource_substring = "/providers/Microsoft.Authorization/roleDefinitions"
 
+
+  # vnet_diagnostics = flatten([
+  #   for diag in var.diagnostic_settings : [
+  #    for vnet in module.odaa_vnets.resource :{
+  #     vnet_id = vnet.value.virtual_network_id
+  #     vnet_name = vnet.value.name
+
+  #     diag_name=diag.name!=null ? diag.name : "diag-${vnet.value.name}"
+  #     diag_config=diag
+  #    }
+  #   ]
+
+  # ])
+
+  #  vnet_diagnostics = flatten([
+  #   for diag in var.diagnostic_settings : [
+  #    for vnet_key, vnet_data in module.odaa_vnets :{
+  #     vnet_id = vnet_data.virtual_network_id
+  #     vnet_name = vnet_data.vnet_resource.name
+
+  #     diag_name=diag.name!=null ? diag.name : "diag-${vnet_data.vnet_resource.name}"
+  #     diag_config=diag
+  #    }
+  #   ]
+
+  # ])
+
+  #   vnet_diagnostic_pairs = flatten([
+  #   for vnet_key, vnet_data in module.odaa_vnets : [
+  #     for ds_key, ds in var.diagnostic_settings : {
+  #       vnet_id                  = vnet_data.virtual_network_id
+  #       vnet_name                = vnet_data.vnet_resource.name
+  #       diag_name                = ds.name
+  #       workspace_resource_id    = ds.workspace_resource_id
+  #       log_analytics_destination_type = ds.log_analytics_destination_type
+  #       metric_categories        = ds.metric_categories
+  #       log_groups               = ds.log_groups
+  #     }
+  #   ]
+  # ])
+
 }

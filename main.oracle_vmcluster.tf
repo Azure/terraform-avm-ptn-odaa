@@ -15,7 +15,7 @@ resource "azapi_resource" "odaa_vm_cluster" {
     delete = "20m"
   }
 
-  body = jsonencode({
+  body = {
     "properties" : {
       "dataStorageSizeInTbs" : each.value.data_storage_size_in_tbs,
       "dbNodeStorageSizeInGbs" : each.value.dbnode_storage_size_in_gbs,
@@ -47,7 +47,6 @@ resource "azapi_resource" "odaa_vm_cluster" {
     },
     "location" : var.location
     }
-  )
   response_export_values = ["properties.ocid"]
   lifecycle {
     ignore_changes = [

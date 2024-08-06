@@ -17,7 +17,7 @@ resource "azapi_resource" "odaa_infra" {
     delete = "20m"
   }
 
-  body = jsonencode({
+  body = {
     "location" : var.location,
     "zones" : [
       each.value.zone
@@ -36,7 +36,7 @@ resource "azapi_resource" "odaa_infra" {
       "shape" : each.value.shape,
       "storageCount" : each.value.storage_count,
     }
-  })
+  }
   schema_validation_enabled = false
 
   depends_on = [ data.azurerm_resource_group.rg ]
