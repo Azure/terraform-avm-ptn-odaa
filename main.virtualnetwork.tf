@@ -1,18 +1,16 @@
+# Create the virtual networks, delegate the specified subnets to Oracle RP
 module "odaa_vnets" {
   for_each                      = var.virtual_networks
   source                        = "Azure/avm-res-network-virtualnetwork/azurerm"
-  version                       = "0.4.0"
+  version                       = "0.1.4"
   name                          = each.value.name
   location                      = var.location
-  address_space = each.value.address_space
+  virtual_network_address_space = each.value.address_space
   tags                          = var.tags
-  diagnostic_settings = var.diagnostic_settings
-
   subnets = { for idx, item in each.value.subnet :
-    "${item.name}" => {
+    item.name => {
       address_prefixes = item.address_prefixes
-      name = item.name
-      delegation = item.delegate_to_oracle ? [
+      delegations = item.delegate_to_oracle ? [
         {
           name = item.name
           service_delegation = {
@@ -28,7 +26,15 @@ module "odaa_vnets" {
   }
   resource_group_name = var.resource_group_name
 
-  depends_on = [data.azurerm_resource_group.rg]
 }
 
-
+# Setup peetings between virtual networks, if specified
+module "vnet_peerings" {
+  depends_on                    = [module.odaa_vnets]
+  for_each                      = var.odaa_vnet_peerings
+  source                        = "./modules/vnet_peerings"
+  primary-vnet-name             = each.value.vnet_source_name
+  secondary-vnet-name           = each.value.vnet_destination_name
+  primary-vnet-resource-group   = each.value.vnet_source_resource_group
+  secondary-vnet-resource-group = each.value.vnet_destination_resource_group
+}

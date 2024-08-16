@@ -1,7 +1,115 @@
+variable "cloud_exadata_infrastructure" {
+  type = map(object({
+    name                                 = string
+    location                             = string
+    zone                                 = string
+    compute_count                        = number
+    display_name                         = string
+    maintenance_window_loadtime_in_weeks = optional(string)
+    maintenance_window_preference        = optional(string)
+    maintenance_window_patching_mode     = optional(string)
+    shape                                = optional(string)
+    storage_count                        = number
+    tags                                 = optional(map(string))
+  }))
+  description = <<DESCRIPTION
+  Cloud Exadata Infrastructure resources  
+
+  - `name` - The name of the Cloud Exadata Infrastructure.
+  - `location` - The location of the Cloud Exadata Infrastructure.
+  - `zone` - (Optional) The availability zone of the Cloud Exadata Infrastructure.
+  - `compute_count` - The number of compute nodes in the Cloud Exadata Infrastructure.
+  - `display_name` - The display name of the Cloud Exadata Infrastructure.
+  - `maintenance_window_loadtime_in_weeks` - The maintenance window load time in weeks.
+  - `maintenance_window_preference` - The maintenance window preference.
+  - `maintenance_window_patching_mode` - The maintenance window patching mode.
+  - `shape` - The shape of the Cloud Exadata Infrastructure.
+  - `storage_count` - The number of storage servers in the Cloud Exadata Infrastructure.
+  - `tags` - (Optional) A mapping of tags to assign to the Cloud Exadata Infrastructure.
+DESCRIPTION
+}
+
+variable "cloud_exadata_vm_cluster" {
+  type = map(object({
+    cluster_name               = string
+    display_name               = string
+    cloud_exadata_infra_name   = string
+    location                   = string
+    data_storage_size_in_tbs   = number
+    dbnode_storage_size_in_gbs = number
+    hostname                   = string
+    domain                     = string
+    cpu_core_count             = number
+    data_storage_percentage    = number
+    memory_size_in_gbs         = number
+
+    ssh_public_keys = list(string)
+    nsg_cidrs = optional(set(object({
+      source = string
+      destination_port_range = optional(set(object({
+        min = string
+        max = string
+      })), null)
+    })), null)
+    license_model                = string
+    vnet_name                    = string
+    client_subnet_name           = string
+    backup_subnet_name           = string
+    gi_version                   = optional(string)
+    time_zone                    = string
+    is_local_backup_enabled      = optional(bool, true)
+    is_sparse_diskgroup_enabled  = optional(bool, true)
+    is_diagnostic_events_enabled = optional(bool, false)
+    is_health_monitoring_enabled = optional(bool, false)
+    is_incident_logs_enabled     = optional(bool, false)
+    tags                         = optional(map(string))
+  }))
+  description = <<DESCRIPTION
+  Cloud Exadata VM Cluster resources
+
+  - `cluster_name` - The name of the Cloud Exadata VM Cluster.
+  - `display_name` - The display name of the Cloud Exadata VM Cluster.
+  - `data_storage_size_in_tbs` - The data storage size in TBs.
+  - `dbnode_storage_size_in_gbs` - The DB node storage size in GBs.
+  - `time_zone` - The time zone of the Cloud Exadata VM Cluster.
+  - `hostname` - The hostname of the Cloud Exadata VM Cluster.
+  - `domain` - The domain of the Cloud Exadata VM Cluster.
+  - `cpu_core_count` - The CPU core count of the Cloud Exadata VM Cluster.
+  - `ocpu_count` - The OCPU count of the Cloud Exadata VM Cluster.
+  - `data_storage_percentage` - The data storage percentage of the Cloud Exadata VM Cluster.
+  - `is_local_backup_enabled` - The local backup enabled status of the Cloud Exadata VM Cluster.
+  - `cloud_exadata_infrastructure_id` - The Cloud Exadata Infrastructure ID of the Cloud Exadata VM Cluster.
+  - `is_sparse_diskgroup_enabled` - The sparse diskgroup enabled status of the Cloud Exadata VM Cluster.
+  - `ssh_public_keys` - The SSH public keys of the Cloud Exadata VM Cluster.
+  - `nsg_cidrs` - (Optional) A set of NSG CIDRs of the Cloud Exadata VM Cluster.
+  - `license_model` - The license model of the Cloud Exadata VM Cluster.
+  - `vnet_id` - The VNet ID of the Cloud Exadata VM Cluster.
+  - `gi_version` - The GI version of the Cloud Exadata VM Cluster.
+  - `subnet_id` - The subnet ID of the Cloud Exadata VM Cluster.
+  - `backup_subnet_cidr` - The backup subnet CIDR of the Cloud Exadata VM Cluster.
+  - `is_diagnostic_events_enabled` - (Optional) The diagnostic events enabled status of the Cloud Exadata VM Cluster.
+  - `is_health_monitoring_enabled` - (Optional) The health monitoring enabled status of the Cloud Exadata VM Cluster.
+  - `is_incident_logs_enabled` - (Optional) The incident logs enabled status of the Cloud Exadata VM Cluster.
+
+DESCRIPTION
+}
+
 variable "location" {
   type        = string
   description = "Azure region where the resource should be deployed."
   nullable    = false
+}
+
+# Set of Virtual network peerings to be setup
+variable "odaa_vnet_peerings" {
+  type = map(object({
+    vnet_source_resource_group      = string
+    vnet_destination_resource_group = string
+    vnet_source_name                = string
+    vnet_destination_name           = string
+    }
+  ))
+  description = "List of virtual network peerings to be setup"
 }
 
 # This is required for most resource modules
@@ -33,6 +141,7 @@ A map describing customer-managed keys to associate with the resource. This incl
 DESCRIPTION  
 }
 
+# tflint-ignore: terraform_unused_declarations
 variable "diagnostic_settings" {
   type = map(object({
     name                                     = optional(string, null)
@@ -47,23 +156,8 @@ variable "diagnostic_settings" {
     marketplace_partner_resource_id          = optional(string, null)
   }))
   default     = {}
-  nullable = false
-  validation {
-      condition     = alltrue([for _, v in var.diagnostic_settings : contains(["Dedicated", "AzureDiagnostics"], v.log_analytics_destination_type)])
-      error_message = "Log analytics destination type must be one of: 'Dedicated', 'AzureDiagnostics'."
-    }
-    validation {
-      condition = alltrue(
-        [
-          for _, v in var.diagnostic_settings :
-          v.workspace_resource_id != null || v.storage_account_resource_id != null || v.event_hub_authorization_rule_resource_id != null || v.marketplace_partner_resource_id != null
-        ]
-      )
-      error_message = "At least one of `workspace_resource_id`, `storage_account_resource_id`, `marketplace_partner_resource_id`, or `event_hub_authorization_rule_resource_id`, must be set."
-    }
-
   description = <<DESCRIPTION
-A map of objects that manage a Diagnostic Setting.
+A map of diagnostic settings to create on the Key Vault. The map key is deliberately arbitrary to avoid issues where map keys maybe unknown at plan time.
 
 - `name` - (Optional) The name of the diagnostic setting. One will be generated if not set, however this will not be unique if you want to create multiple diagnostic setting resources.
 - `log_categories` - (Optional) A set of log categories to send to the log analytics workspace. Defaults to `[]`.
@@ -76,7 +170,21 @@ A map of objects that manage a Diagnostic Setting.
 - `event_hub_name` - (Optional) The name of the event hub. If none is specified, the default event hub will be selected.
 - `marketplace_partner_resource_id` - (Optional) The full ARM resource ID of the Marketplace resource to which you would like to send Diagnostic LogsLogs.
 DESCRIPTION  
+  nullable    = false
 
+  validation {
+    condition     = alltrue([for _, v in var.diagnostic_settings : contains(["Dedicated", "AzureDiagnostics"], v.log_analytics_destination_type)])
+    error_message = "Log analytics destination type must be one of: 'Dedicated', 'AzureDiagnostics'."
+  }
+  validation {
+    condition = alltrue(
+      [
+        for _, v in var.diagnostic_settings :
+        v.workspace_resource_id != null || v.storage_account_resource_id != null || v.event_hub_authorization_rule_resource_id != null || v.marketplace_partner_resource_id != null
+      ]
+    )
+    error_message = "At least one of `workspace_resource_id`, `storage_account_resource_id`, `marketplace_partner_resource_id`, or `event_hub_authorization_rule_resource_id`, must be set."
+  }
 }
 
 variable "enable_telemetry" {
@@ -89,6 +197,7 @@ If it is set to false, then no telemetry will be collected.
 DESCRIPTION
 }
 
+# tflint-ignore: terraform_unused_declarations
 variable "lock" {
   type = object({
     kind = string
@@ -124,6 +233,7 @@ DESCRIPTION
   nullable    = false
 }
 
+# tflint-ignore: terraform_unused_declarations
 variable "private_endpoints" {
   type = map(object({
     name = optional(string, null)
@@ -135,6 +245,7 @@ variable "private_endpoints" {
       condition                              = optional(string, null)
       condition_version                      = optional(string, null)
       delegated_managed_identity_resource_id = optional(string, null)
+      principal_type                         = optional(string, null)
     })), {})
     lock = optional(object({
       kind = string
@@ -181,6 +292,7 @@ DESCRIPTION
 # or if it is to be managed externally, e.g. using Azure Policy.
 # https://github.com/Azure/terraform-azurerm-avm-res-keyvault-vault/issues/32
 # Alternatively you can use AzAPI, which does not have this issue.
+# tflint-ignore: terraform_unused_declarations
 variable "private_endpoints_manage_dns_zone_group" {
   type        = bool
   default     = true
@@ -188,6 +300,7 @@ variable "private_endpoints_manage_dns_zone_group" {
   nullable    = false
 }
 
+# tflint-ignore: terraform_unused_declarations
 variable "role_assignments" {
   type = map(object({
     role_definition_id_or_name             = string
@@ -197,6 +310,7 @@ variable "role_assignments" {
     condition                              = optional(string, null)
     condition_version                      = optional(string, null)
     delegated_managed_identity_resource_id = optional(string, null)
+    principal_type                         = optional(string, null)
   }))
   default     = {}
   description = <<DESCRIPTION
@@ -208,18 +322,33 @@ A map of role assignments to create on this resource. The map key is deliberatel
 - `skip_service_principal_aad_check` - If set to true, skips the Azure Active Directory check for the service principal in the tenant. Defaults to false.
 - `condition` - The condition which will be used to scope the role assignment.
 - `condition_version` - The version of the condition syntax. Valid values are '2.0'.
+- `delegated_managed_identity_resource_id` - (Optional) The delegated Azure Resource Id which contains a Managed Identity. Changing this forces a new resource to be created. This field is only used in cross-tenant scenario.
+- `principal_type` - (Optional) The type of the `principal_id`. Possible values are `User`, `Group` and `ServicePrincipal`. It is necessary to explicitly set this attribute when creating role assignments if the principal creating the assignment is constrained by ABAC rules that filters on the PrincipalType attribute.
 
 > Note: only set `skip_service_principal_aad_check` to true if you are assigning a role to a service principal.
 DESCRIPTION
   nullable    = false
 }
 
+variable "route_tables" {
+  type = map(object({
+    name                          = string
+    disable_bgp_route_propagation = optional(bool, null)
+    route = optional(set(object({
+      address_prefix         = string
+      name                   = string
+      next_hop_in_ip_address = string
+      next_hop_type          = string
+    })), null)
+  }))
+  default     = {}
+  description = "Route tables for Exadata appliance vnets/subnets"
+}
+
 # tflint-ignore: terraform_unused_declarations
 variable "tags" {
-  type = map(string)
-  default = {
-    scenario = "ODAA Terraform Deployment"
-  }
+  type        = map(string)
+  default     = null
   description = "(Optional) Tags of the resource."
 }
 
@@ -250,150 +379,24 @@ variable "virtual_networks" {
       use_remote_gateways     = bool
     })), {})
   }))
-  description = "Virtual Network(s) for hosting Exadata appliances"
   default = {
     primaryvnet = {
       name          = "vnet-odaa"
       address_space = ["10.0.0.0/16"]
       subnet = [
         {
-          name                  = "snet-odaa"
+          name                  = "client"
           address_prefixes      = ["10.0.0.0/24"]
           delegate_to_oracle    = true
+          associate_route_table = false
+        },
+        {
+          name                  = "backup"
+          address_prefixes      = ["10.0.1.0/24"]
+          delegate_to_oracle    = false
           associate_route_table = false
       }]
     }
   }
-}
-
-variable "route_tables" {
-  type = map(object({
-    name                          = string
-    disable_bgp_route_propagation = optional(bool, null)
-    route = optional(set(object({
-      address_prefix         = string
-      name                   = string
-      next_hop_in_ip_address = string
-      next_hop_type          = string
-    })), null)
-  }))
-  description = "Route tables for Exadata appliance vnets/subnets"
-  default     = {}
-}
-
-
-variable "suffix" {
-  type        = string
-  description = "Suffix of the name under 6 characters"
-  default = ""
-  validation {
-    condition     = length(var.suffix) < 6 && lower(var.suffix) == var.suffix
-    error_message = "The Suffix value must be lowercase and < 6 chars."
-  }
-}
-
-############################################################################################################
-##################### Cloud Exadata Infrastructure variables
-############################################################################################################
-
-variable "cloud_exadata_infrastructure" {
-  type = map(object({
-    name                                 = string
-    location                             = string
-    zone                                 = optional(string, null)
-    compute_count                        = number
-    display_name                         = string
-    createdby                            = string
-    maintenance_window_leadtime_in_weeks = number
-    maintenance_window_preference        = string
-    maintenance_window_patching_mode     = string
-    shape                                = string
-    storage_count                        = number
-    tags                                 = optional(map(string), null)
-  }))
-  default = {}
-  description = <<DESCRIPTION
-  Cloud Exadata Infrastructure resources  
-
-  - `name` - The name of the Cloud Exadata Infrastructure.
-  - `location` - The location of the Cloud Exadata Infrastructure.
-  - `zone` - (Optional) The availability zone of the Cloud Exadata Infrastructure.
-  - `compute_count` - The number of compute nodes in the Cloud Exadata Infrastructure.
-  - `display_name` - The display name of the Cloud Exadata Infrastructure.
-  - `maintenance_window_leadtime_in_weeks` - The maintenance window load time in weeks.
-  - `maintenance_window_preference` - The maintenance window preference.
-  - `maintenance_window_patching_mode` - The maintenance window patching mode.
-  - `shape` - The shape of the Cloud Exadata Infrastructure.
-  - `storage_count` - The number of storage servers in the Cloud Exadata Infrastructure.
-  - `tags` - (Optional) A mapping of tags to assign to the Cloud Exadata Infrastructure.
-DESCRIPTION
-}
-
-############################################################################################################
-##################### Cloud Exadata VM Cliuster variables
-############################################################################################################
-
-variable "cloud_exadata_vm_cluster" {
-  type = map(object({
-    cluster_name                    = string          #Max 11 characters
-    display_name                    = string
-    data_storage_size_in_tbs        = number
-    dbnode_storage_size_in_gbs      = number
-    time_zone                       = string
-    hostname                        = string
-    domain                          = optional(string,"")
-    cpu_core_count                  = number
-    memory_size_in_gbs              = number
-    ocpu_count                      = number
-    data_storage_percentage         = number
-    is_local_backup_enabled         = bool
-    cloud_exadata_infrastructure_id = string
-    is_sparse_diskgroup_enabled     = bool
-    ssh_public_keys                 = list(string)
-    db_servers                      = list(string)
-    nsg_cidrs = optional(set(object({
-      source = string
-      destination_port_range = optional(set(object({
-        min = string
-        max = string
-      })), null)
-    })), null)
-    license_model                = string
-    vnet_id                      = string
-    gi_version                   = string
-    subnet_id                    = string
-    backup_subnet_cidr           = string
-    is_diagnostic_events_enabled = optional(bool, false)
-    is_health_monitoring_enabled = optional(bool, false)
-    is_incident_logs_enabled     = optional(bool, false)
-  }))
-  default     = {}
-  description = <<DESCRIPTION
-  Cloud Exadata VM Cluster resources
-
-  - `cluster_name` - The name of the Cloud Exadata VM Cluster.
-  - `display_name` - The display name of the Cloud Exadata VM Cluster.
-  - `data_storage_size_in_tbs` - The data storage size in TBs.
-  - `dbnode_storage_size_in_gbs` - The DB node storage size in GBs.
-  - `time_zone` - The time zone of the Cloud Exadata VM Cluster.
-  - `hostname` - The hostname of the Cloud Exadata VM Cluster.
-  - `domain` - The domain of the Cloud Exadata VM Cluster.
-  - `cpu_core_count` - The CPU core count of the Cloud Exadata VM Cluster.
-  - `ocpu_count` - The OCPU count of the Cloud Exadata VM Cluster.
-  - `data_storage_percentage` - The data storage percentage of the Cloud Exadata VM Cluster.
-  - `is_local_backup_enabled` - The local backup enabled status of the Cloud Exadata VM Cluster.
-  - `cloud_exadata_infrastructure_id` - The Cloud Exadata Infrastructure ID of the Cloud Exadata VM Cluster.
-  - `is_sparse_diskgroup_enabled` - The sparse diskgroup enabled status of the Cloud Exadata VM Cluster.
-  - `ssh_public_keys` - The SSH public keys of the Cloud Exadata VM Cluster.
-  - `nsg_cidrs` - (Optional) A set of NSG CIDRs of the Cloud Exadata VM Cluster.
-  - `license_model` - The license model of the Cloud Exadata VM Cluster.
-  - `vnet_id` - The VNet ID of the Cloud Exadata VM Cluster.
-  - `gi_version` - The GI version of the Cloud Exadata VM Cluster.
-  - `subnet_id` - The subnet ID of the Cloud Exadata VM Cluster.
-  - `backup_subnet_cidr` - The backup subnet CIDR of the Cloud Exadata VM Cluster.
-  - `is_diagnostic_events_enabled` - (Optional) The diagnostic events enabled status of the Cloud Exadata VM Cluster.
-  - `is_health_monitoring_enabled` - (Optional) The health monitoring enabled status of the Cloud Exadata VM Cluster.
-  - `is_incident_logs_enabled` - (Optional) The incident logs enabled status of the Cloud Exadata VM Cluster.
-
-DESCRIPTION
+  description = "Virtual Network(s) for hosting Exadata appliances"
 }
