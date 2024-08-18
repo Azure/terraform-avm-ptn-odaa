@@ -9,9 +9,6 @@ module "odaa_vmcluster" {
   # Configure the Cloud Infrastructure resource for the cluster
   cloud_exadata_infrastructure_id = module.odaa_infrastructure[each.value.cloud_exadata_infra_name].resource.id
 
-  #TODO: remove this line, by default clusters should deploy to all available DB Servers
-  db_servers = ["FAKE_DB_SERVER1", "FAKE_DB_SERVER2"]
-
   # Fundamentals
   cluster_name      = each.value.cluster_name
   location          = each.value.location
