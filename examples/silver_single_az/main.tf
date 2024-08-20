@@ -1,6 +1,10 @@
 terraform {
   required_version = "~> 1.5"
   required_providers {
+    azapi = {
+      source  = "azure/azapi"
+      version = "~> 1.14.0"
+    }    
     azurerm = {
       source  = "hashicorp/azurerm"
       version = "~> 3.74"
@@ -58,7 +62,7 @@ module "naming" {
 
 # This is required for resource modules
 resource "azurerm_resource_group" "this" {
-  location = module.regions.regions[random_integer.region_index.result].name
+  location = local.location #module.regions.regions[random_integer.region_index.result].name
   name     = module.naming.resource_group.name_unique
 }
 
@@ -71,7 +75,7 @@ module "silver_single_az" {
   # Create the Virtual Networks
   virtual_networks = {
     primaryvnet = {
-      name          = "vnet-odaa"
+      name          = module.naming.virtual_network.name_unique
       address_space = ["10.0.0.0/16"]
       subnet = [
         {
@@ -79,13 +83,7 @@ module "silver_single_az" {
           address_prefixes      = ["10.0.0.0/24"]
           delegate_to_oracle    = true
           associate_route_table = false
-        },
-        {
-          name                  = "backup"
-          address_prefixes      = ["10.0.1.0/24"]
-          delegate_to_oracle    = false
-          associate_route_table = false
-      }]
+        }]
     }
   }
 
@@ -97,19 +95,19 @@ module "silver_single_az" {
     primary_exadata_infrastructure = {
 
       location          = azurerm_resource_group.this.location
-      name              = "odaa-infra-primary"
-      display_name      = "odaa-infra-primary"
+      name              = "odaa-infra-${random_string.suffix.result}"
+      display_name      = "odaa-infra-${random_string.suffix.result}"
       resource_group_id = azurerm_resource_group.this.id
       zone              = local.zone
       compute_count     = 2
       storage_count     = 3
+      shape             = "Exadata.X9M"
       tags              = local.tags
       enable_telemetry  = local.enable_telemetry
     }
   }
 
   # Create the VM Cluster resource(s)
-  # cloud_exadata_vm_cluster = {}
   cloud_exadata_vm_cluster = {
     primary_vm_cluster = {
       location                     = azurerm_resource_group.this.location
@@ -117,8 +115,8 @@ module "silver_single_az" {
       cloud_exadata_infra_name     = "primary_exadata_infrastructure"
       vnet_name                    = "primaryvnet"
       client_subnet_name           = "client"
-      backup_subnet_name           = "backup"
-      ssh_public_keys              = ["ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDeCq3pYt6uTuIKv8nreycCgwsvLQFEJ0q7WPswOckhaG87kxopxXfXbGiMbbgcgVDg+0UIWZB6ZTspFHR5pS/U6CeJzPFQ8C6iI3Evip4jqyaQ1uY87mjMZGWKa+OAgK7gmzWCZmXNcQ1Mmd/hJrQCQGHah3HiPWl1j96s6nxoI4dW6MKggdC2WFWVxIAGLYqWMndMOGVRfiYPv3c2jliTnvZK/KJgJV4vu8+BbpvsIbqhJDx4ONk+9KfYLb/pA9QlJFVBki5VUlYDo565JNclS5Y5Qu0/tbwIOj06Gr4kUy/CgrFFnReykT7+OXbjyPD7O6s+2yzK+H5UZFtHuzlRfJGwqfG9jk/5EPhnyW5eb/tO07icSjVnfdCncTspjZMnwEbHwF4ksYQKM45ArHLHKAXB+uExpoqBysHS5hXLCwG2NclwlC6Lsm+BOacdFwFWMCTGEsGf36c6eMQexnr2U0WnH7qxrJBjxyqwCLeWWQslw297kU/2IvuTWpDoMqM="]
+      backup_subnet_cidr           = "172.17.5.0/24"
+      ssh_public_keys              = ["${tls_private_key.generated_ssh_key.public_key_openssh}"]
       cluster_name                 = "odaa-vmcl"
       display_name                 = "odaa vm cluster"
       data_storage_size_in_tbs     = 2
@@ -126,8 +124,7 @@ module "silver_single_az" {
       time_zone                    = "UTC"
       memory_size_in_gbs           = 60
       hostname                     = "hostname-${random_string.suffix.result}"
-      domain                       = "odaa-domain1"
-      cpu_core_count               = 2
+      cpu_core_count               = 4
       data_storage_percentage      = 80
       is_local_backup_enabled      = false
       is_sparse_diskgroup_enabled  = false

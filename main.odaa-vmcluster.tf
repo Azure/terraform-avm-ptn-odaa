@@ -20,7 +20,7 @@ module "odaa_vmcluster" {
   # Virtual network settings
   vnet_id            = module.odaa_vnets[each.value.vnet_name].virtual_network_id
   subnet_id          = module.odaa_vnets[each.value.vnet_name].subnets[each.value.client_subnet_name].id
-  backup_subnet_cidr = module.odaa_vnets[each.value.vnet_name].subnets[each.value.backup_subnet_name].address_prefixes[0]
+  backup_subnet_cidr = each.value.backup_subnet_cidr
 
   # Compute configuration settings
   cpu_core_count     = each.value.cpu_core_count
@@ -32,7 +32,6 @@ module "odaa_vmcluster" {
   dbnode_storage_size_in_gbs = each.value.dbnode_storage_size_in_gbs
 
   # Optional settings
-  domain                       = each.value.domain
   gi_version                   = each.value.gi_version
   is_diagnostic_events_enabled = each.value.is_diagnostic_events_enabled
   is_health_monitoring_enabled = each.value.is_health_monitoring_enabled

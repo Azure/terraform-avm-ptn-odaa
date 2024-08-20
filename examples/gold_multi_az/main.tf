@@ -62,13 +62,7 @@ module "gold_multi_az" {
           address_prefixes      = ["10.0.0.0/24"]
           delegate_to_oracle    = true
           associate_route_table = false
-        },
-        {
-          name                  = "primary-backup"
-          address_prefixes      = ["10.0.1.0/24"]
-          delegate_to_oracle    = false
-          associate_route_table = false
-      }]
+        }]
     },
     secondaryvnet = {
       name          = "vnet-secondary"
@@ -79,13 +73,7 @@ module "gold_multi_az" {
           address_prefixes      = ["10.1.0.0/24"]
           delegate_to_oracle    = true
           associate_route_table = false
-        },
-        {
-          name                  = "secondary-backup"
-          address_prefixes      = ["10.1.1.0/24"]
-          delegate_to_oracle    = false
-          associate_route_table = false
-      }]
+        }]
     }
   }
 

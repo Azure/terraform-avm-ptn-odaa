@@ -38,7 +38,6 @@ variable "cloud_exadata_vm_cluster" {
     data_storage_size_in_tbs   = number
     dbnode_storage_size_in_gbs = number
     hostname                   = string
-    domain                     = string
     cpu_core_count             = number
     data_storage_percentage    = number
     memory_size_in_gbs         = number
@@ -54,7 +53,7 @@ variable "cloud_exadata_vm_cluster" {
     license_model                = string
     vnet_name                    = string
     client_subnet_name           = string
-    backup_subnet_name           = string
+    backup_subnet_cidr           = string
     gi_version                   = optional(string)
     time_zone                    = string
     is_local_backup_enabled      = optional(bool, true)
