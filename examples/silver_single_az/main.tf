@@ -4,19 +4,28 @@ terraform {
     azapi = {
       source  = "azure/azapi"
       version = "~> 1.14.0"
-    }    
+    }
     azurerm = {
       source  = "hashicorp/azurerm"
       version = "~> 3.74"
+    }
+    local = {
+      source  = "hashicorp/local"
+      version = "2.5.1"
     }
     random = {
       source  = "hashicorp/random"
       version = "~> 3.5"
     }
+    tls = {
+      source  = "hashicorp/tls"
+      version = "4.0.5"
+    }
   }
 }
 
 provider "azurerm" {
+  skip_provider_registration = "true"
   features {}
 }
 
@@ -83,7 +92,7 @@ module "silver_single_az" {
           address_prefixes      = ["10.0.0.0/24"]
           delegate_to_oracle    = true
           associate_route_table = false
-        }]
+      }]
     }
   }
 
@@ -116,7 +125,7 @@ module "silver_single_az" {
       vnet_name                    = "primaryvnet"
       client_subnet_name           = "client"
       backup_subnet_cidr           = "172.17.5.0/24"
-      ssh_public_keys              = ["${tls_private_key.generated_ssh_key.public_key_openssh}"]
+      ssh_public_keys              = [tls_private_key.generated_ssh_key.public_key_openssh]
       cluster_name                 = "odaa-vmcl"
       display_name                 = "odaa vm cluster"
       data_storage_size_in_tbs     = 2

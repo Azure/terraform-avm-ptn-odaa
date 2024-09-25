@@ -33,8 +33,8 @@ module "vnet_peerings" {
   depends_on                    = [module.odaa_vnets]
   for_each                      = var.odaa_vnet_peerings
   source                        = "./modules/vnet_peerings"
-  primary-vnet-name             = each.value.vnet_source_name
-  secondary-vnet-name           = each.value.vnet_destination_name
-  primary-vnet-resource-group   = each.value.vnet_source_resource_group
-  secondary-vnet-resource-group = each.value.vnet_destination_resource_group
+  primary_vnet_name             = each.value.vnet_source_name
+  secondary_vnet_name           = each.value.vnet_destination_name
+  primary_vnet_resource_group   = each.value.vnet_source_resource_group
+  secondary_vnet_resource_group = each.value.vnet_destination_resource_group
 }

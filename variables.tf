@@ -5,10 +5,10 @@ variable "cloud_exadata_infrastructure" {
     zone                                 = string
     compute_count                        = number
     display_name                         = string
-    maintenance_window_loadtime_in_weeks = optional(string,0)
-    maintenance_window_preference        = optional(string,"NoPreference")
-    maintenance_window_patching_mode     = optional(string,"Rolling")
-    shape                                = optional(string,"Exadata.X9M")
+    maintenance_window_loadtime_in_weeks = optional(string, 0)
+    maintenance_window_preference        = optional(string, "NoPreference")
+    maintenance_window_patching_mode     = optional(string, "Rolling")
+    shape                                = optional(string, "Exadata.X9M")
     storage_count                        = number
     tags                                 = optional(map(string))
   }))
@@ -45,16 +45,16 @@ variable "cloud_exadata_vm_cluster" {
     ssh_public_keys = list(string)
     nsg_cidrs = optional(set(object({
       source = string
-      destination_port_range = optional(set(object({
+      destination_port_range = optional(object({
         min = string
         max = string
-      })), null)
-    })), null)
-    license_model                = optional(string,"LicenseIncluded")
+      }), null)
+    })))
+    license_model                = optional(string, "LicenseIncluded")
     vnet_name                    = string
     client_subnet_name           = string
     backup_subnet_cidr           = string
-    gi_version                   = optional(string,"19.0.0.0")
+    gi_version                   = optional(string, "19.0.0.0")
     time_zone                    = string
     is_local_backup_enabled      = optional(bool, true)
     is_sparse_diskgroup_enabled  = optional(bool, true)
@@ -186,6 +186,7 @@ DESCRIPTION
   }
 }
 
+# tflint-ignore: terraform_unused_declarations
 variable "enable_telemetry" {
   type        = bool
   default     = true

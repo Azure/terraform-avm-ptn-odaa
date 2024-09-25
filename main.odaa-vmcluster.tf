@@ -4,15 +4,15 @@ module "odaa_vmcluster" {
   depends_on = [module.odaa_infrastructure]
 
   for_each = var.cloud_exadata_vm_cluster
-  source   = "github.com/sihbher/avm-res-oracle-database-cloudvmcluster"
+  source   = "Azure/avm-res-oracledatabase-cloudvmcluster/azurerm"
 
   # Configure the Cloud Infrastructure resource for the cluster
   cloud_exadata_infrastructure_id = module.odaa_infrastructure[each.value.cloud_exadata_infra_name].resource.id
+  version                         = "0.1.0"
 
   # Fundamentals
   cluster_name      = each.value.cluster_name
   location          = each.value.location
-  display_name      = each.value.display_name
   hostname          = each.value.hostname
   resource_group_id = data.azurerm_resource_group.odaa_group.id
   ssh_public_keys   = each.value.ssh_public_keys

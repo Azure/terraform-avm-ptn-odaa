@@ -6,7 +6,8 @@ data "azurerm_resource_group" "odaa_group" {
 module "odaa_infrastructure" {
   for_each = var.cloud_exadata_infrastructure
 
-  source = "github.com/sihbher/avm-res-oracle-database-cloudexadatainfrastructure"
+  source  = "Azure/avm-res-oracledatabase-cloudexadatainfrastructure/azurerm"
+  version = "0.1.0"
 
   # Fundamentals
   name              = each.value.name

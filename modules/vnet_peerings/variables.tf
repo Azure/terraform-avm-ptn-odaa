@@ -1,19 +1,19 @@
-variable "primary-vnet-name" {
-  type    = string
-  default = ""
+variable "primary_vnet_name" {
+  type        = string
+  description = "Name of the source vnet"
 }
 
-variable "primary-vnet-resource-group" {
-  type    = string
-  default = ""
+variable "primary_vnet_resource_group" {
+  type        = string
+  description = "Name of the resource group of source vnet"
 }
 
-variable "secondary-vnet-name" {
-  type    = string
-  default = ""
+variable "secondary_vnet_name" {
+  type        = string
+  description = "Name of the destination vnet"
 }
 
-variable "secondary-vnet-resource-group" {
-  type    = string
-  default = ""
+variable "secondary_vnet_resource_group" {
+  type        = string
+  description = "Name of the resource group of destination vnet"
 }

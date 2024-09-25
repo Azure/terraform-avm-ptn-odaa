@@ -9,6 +9,7 @@ resource "azurerm_route_table" "rt_odaa" {
 
   dynamic "route" {
     for_each = each.value.route == null ? [] : each.value.route
+
     content {
       address_prefix         = route.value.address_prefix
       name                   = route.value.name
