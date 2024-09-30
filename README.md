@@ -107,14 +107,14 @@ Description:   Cloud Exadata VM Cluster resources
   - `ocpu_count` - The OCPU count of the Cloud Exadata VM Cluster.
   - `data_storage_percentage` - The data storage percentage of the Cloud Exadata VM Cluster.
   - `is_local_backup_enabled` - The local backup enabled status of the Cloud Exadata VM Cluster.
-  - `cloud_exadata_infrastructure_id` - The Cloud Exadata Infrastructure ID of the Cloud Exadata VM Cluster.
+  - `cloud_exadata_infra_name` - This is a reference to the Cloud Infrastructure object specified in parameters
   - `is_sparse_diskgroup_enabled` - The sparse diskgroup enabled status of the Cloud Exadata VM Cluster.
   - `ssh_public_keys` - The SSH public keys of the Cloud Exadata VM Cluster.
   - `nsg_cidrs` - (Optional) A set of NSG CIDRs of the Cloud Exadata VM Cluster.
   - `license_model` - The license model of the Cloud Exadata VM Cluster.
-  - `vnet_id` - The VNet ID of the Cloud Exadata VM Cluster.
+  - `vnet_name` - This is a reference to the VNET object specified in the Virtual networks parameter
+  - `client_subnet_name` - This is a reference to the Subnet object specified in the Subnet attribute in Vnet parameters
   - `gi_version` - The GI version of the Cloud Exadata VM Cluster.
-  - `subnet_id` - The subnet ID of the Cloud Exadata VM Cluster.
   - `backup_subnet_cidr` - The backup subnet CIDR of the Cloud Exadata VM Cluster.
   - `is_diagnostic_events_enabled` - (Optional) The diagnostic events enabled status of the Cloud Exadata VM Cluster.
   - `is_health_monitoring_enabled` - (Optional) The health monitoring enabled status of the Cloud Exadata VM Cluster.

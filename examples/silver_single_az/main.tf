@@ -147,8 +147,8 @@ module "silver_single_az" {
     primary_vm_cluster = {
       location                     = azurerm_resource_group.this.location
       resource_group_id            = azurerm_resource_group.this.id
-      cloud_exadata_infra_name     = "primary_exadata_infrastructure" ## Reference to the ODAA infra object
-      vnet_name                    = "primaryvnet"                    ## Reference to the Primary Vnet, 
+      cloud_exadata_infra_name     = "primary_exadata_infrastructure"
+      vnet_name                    = "primaryvnet"
       client_subnet_name           = "client"
       backup_subnet_cidr           = "172.17.5.0/24"
       ssh_public_keys              = [tls_private_key.generated_ssh_key.public_key_openssh]
