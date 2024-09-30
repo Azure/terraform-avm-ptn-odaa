@@ -35,13 +35,6 @@ provider "azurerm" {
   features {}
 }
 
-
-resource "random_string" "suffix" {
-  length  = 5
-  special = false
-  upper   = false
-}
-
 locals {
   enable_telemetry = true
   location         = "eastus"
@@ -55,33 +48,57 @@ locals {
   zone = "3"
 }
 
-## Section to provide a random Azure region for the resource group
-# This allows us to randomize the region for the resource group.
-module "regions" {
-  source  = "Azure/regions/azurerm"
-  version = "~> 0.3"
-}
-
-# This allows us to randomize the region for the resource group.
-resource "random_integer" "region_index" {
-  max = length(module.regions.regions) - 1
-  min = 0
-}
-## End of section to provide a random Azure region for the resource group
-
 # This ensures we have unique CAF compliant names for our resources.
 module "naming" {
   source  = "Azure/naming/azurerm"
   version = "~> 0.3"
 }
 
-# This is required for resource modules
+# Create SSH Keys for deployment of ODAA VM cluster
+
+resource "tls_private_key" "generated_ssh_key" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+
+resource "azapi_resource" "ssh_public_key" {
+  type = "Microsoft.Compute/sshPublicKeys@2023-09-01"
+  body = {
+    properties = {
+      publicKey = tls_private_key.generated_ssh_key.public_key_openssh
+    }
+  }
+  location  = local.location
+  name      = "odaa_ssh_key"
+  parent_id = azurerm_resource_group.this.id
+}
+
+resource "local_file" "private_key" {
+  filename = "path.module/id_rsa"
+  content  = tls_private_key.generated_ssh_key.private_key_pem
+}
+
+resource "random_string" "suffix" {
+  length  = 5
+  special = false
+  upper   = false
+}
+
+
+# Create a Resource group that will host all the pattern resources
 resource "azurerm_resource_group" "this" {
-  location = local.location #module.regions.regions[random_integer.region_index.result].name
+  location = local.location
   name     = module.naming.resource_group.name_unique
 }
 
-# Single-AZ Deployment of ODAA infratstructure/VM Cluster (Silver)
+# Create a Log analytics resource for use in Vnet diagnostics
+resource "azurerm_log_analytics_workspace" "this" {
+  location            = azurerm_resource_group.this.location
+  name                = module.naming.log_analytics_workspace.name_unique
+  resource_group_name = azurerm_resource_group.this.name
+}
+
+# Single-AZ Deployment of ODAA infrastructure/VM Cluster (Silver)
 module "silver_single_az" {
   source              = "../../"
   location            = azurerm_resource_group.this.location
@@ -94,11 +111,17 @@ module "silver_single_az" {
       address_space = ["10.0.0.0/16"]
       subnet = [
         {
-          name                  = "client"
-          address_prefixes      = ["10.0.0.0/24"]
-          delegate_to_oracle    = true
-          associate_route_table = false
+          name               = "client"
+          address_prefixes   = ["10.0.0.0/24"]
+          delegate_to_oracle = true
       }]
+      diagnostic_settings = {
+        sendToLogAnalytics = {
+          name                           = "sendToLogAnalytics"
+          workspace_resource_id          = azurerm_log_analytics_workspace.this.id
+          log_analytics_destination_type = "Dedicated"
+        }
+      }
     }
   }
 
@@ -109,16 +132,19 @@ module "silver_single_az" {
   cloud_exadata_infrastructure = {
     primary_exadata_infrastructure = {
 
-      location          = azurerm_resource_group.this.location
-      name              = "odaa-infra-${random_string.suffix.result}"
-      display_name      = "odaa-infra-${random_string.suffix.result}"
-      resource_group_id = azurerm_resource_group.this.id
-      zone              = local.zone
-      compute_count     = 2
-      storage_count     = 3
-      shape             = "Exadata.X9M"
-      tags              = local.tags
-      enable_telemetry  = local.enable_telemetry
+      location                             = azurerm_resource_group.this.location
+      name                                 = "odaa-infra-${random_string.suffix.result}"
+      display_name                         = "odaa-infra-${random_string.suffix.result}"
+      resource_group_id                    = azurerm_resource_group.this.id
+      zone                                 = local.zone
+      compute_count                        = 2
+      storage_count                        = 3
+      shape                                = "Exadata.X9M"
+      maintenance_window_leadtime_in_weeks = 0
+      maintenance_window_preference        = "NoPreference"
+      maintenance_window_patching_mode     = "Rolling"
+      tags                                 = local.tags
+      enable_telemetry                     = local.enable_telemetry
     }
   }
 
@@ -127,8 +153,8 @@ module "silver_single_az" {
     primary_vm_cluster = {
       location                     = azurerm_resource_group.this.location
       resource_group_id            = azurerm_resource_group.this.id
-      cloud_exadata_infra_name     = "primary_exadata_infrastructure"
-      vnet_name                    = "primaryvnet"
+      cloud_exadata_infra_name     = "primary_exadata_infrastructure" ## Reference to the ODAA infra object
+      vnet_name                    = "primaryvnet"                    ## Reference to the Primary Vnet, 
       client_subnet_name           = "client"
       backup_subnet_cidr           = "172.17.5.0/24"
       ssh_public_keys              = [tls_private_key.generated_ssh_key.public_key_openssh]
@@ -194,9 +220,9 @@ The following providers are used by this module:
 The following resources are used by this module:
 
 - [azapi_resource.ssh_public_key](https://registry.terraform.io/providers/azure/azapi/latest/docs/resources/resource) (resource)
+- [azurerm_log_analytics_workspace.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/log_analytics_workspace) (resource)
 - [azurerm_resource_group.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group) (resource)
 - [local_file.private_key](https://registry.terraform.io/providers/hashicorp/local/2.5.1/docs/resources/file) (resource)
-- [random_integer.region_index](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/integer) (resource)
 - [random_string.suffix](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/string) (resource)
 - [tls_private_key.generated_ssh_key](https://registry.terraform.io/providers/hashicorp/tls/4.0.5/docs/resources/private_key) (resource)
 
@@ -230,12 +256,6 @@ The following Modules are called:
 ### <a name="module_naming"></a> [naming](#module\_naming)
 
 Source: Azure/naming/azurerm
-
-Version: ~> 0.3
-
-### <a name="module_regions"></a> [regions](#module\_regions)
-
-Source: Azure/regions/azurerm
 
 Version: ~> 0.3
 
