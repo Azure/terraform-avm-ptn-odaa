@@ -66,10 +66,6 @@ The following outputs are exported:
 
 Description: Resource ID of the first peering resource
 
-### <a name="output_vnet_peerings_resource_ids"></a> [vnet\_peerings\_resource\_ids](#output\_vnet\_peerings\_resource\_ids)
-
-Description: Resource IDs of the Virtual network peerings created
-
 ## Modules
 
 The following Modules are called:

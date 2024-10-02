@@ -30,8 +30,9 @@ provider "azurerm" {
 }
 
 locals {
-  enable_telemetry   = true
-  location           = "eastus"
+  enable_telemetry = true
+  location         = "eastus"
+  secondary_zone   = "2"
   tags = {
     scenario         = "Default"
     project          = "Oracle Database @ Azure"
@@ -40,7 +41,6 @@ locals {
     deploy_timestamp = timestamp()
   }
   zone = "3"
-  secondary_zone = "2"
 }
 
 # This ensures we have unique CAF compliant names for our resources.
@@ -104,9 +104,9 @@ module "gold_multi_az" {
       address_space = ["10.0.0.0/16"]
       subnet = [
         {
-          name                  = "client"
-          address_prefixes      = ["10.0.0.0/24"]
-          delegate_to_oracle    = true
+          name               = "client"
+          address_prefixes   = ["10.0.0.0/24"]
+          delegate_to_oracle = true
       }]
     },
     secondaryvnet = {
@@ -114,9 +114,9 @@ module "gold_multi_az" {
       address_space = ["10.1.0.0/16"]
       subnet = [
         {
-          name                  = "client"
-          address_prefixes      = ["10.1.0.0/24"]
-          delegate_to_oracle    = true
+          name               = "client"
+          address_prefixes   = ["10.1.0.0/24"]
+          delegate_to_oracle = true
       }]
     }
   }
@@ -130,9 +130,9 @@ module "gold_multi_az" {
       vnet_destination_resource_group = azurerm_resource_group.this.name
     }
   }
-  enable_telemetry             = var.enable_telemetry # see variables.tf
+  enable_telemetry = var.enable_telemetry # see variables.tf
 
- # Create the ODAA Infrastructure resource(s)
+  # Create the ODAA Infrastructure resource(s)
   cloud_exadata_infrastructure = {
     primary_exadata_infrastructure = {
 
