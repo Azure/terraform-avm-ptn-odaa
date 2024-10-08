@@ -1,15 +1,15 @@
-# terraform-azurerm-avm-template
+# Oracle Exadata appliance deployment on Azure - Pattern module
 
-This is a template repo for Terraform Azure Verified Modules.
+This pattern module deploys an Oracle Exadata appliance on Azure, with a virtual network and other supporting resources necessary.
 
-Things to do:
+It deploys at a minimum the following resources:
 
-1. Set up a GitHub repo environment called `test`.
-1. Configure environment protection rule to ensure that approval is required before deploying to this environment.
-1. Create a user-assigned managed identity in your test subscription.
-1. Create a role assignment for the managed identity on your test subscription, use the minimum required role.
-1. Configure federated identity credentials on the user assigned managed identity. Use the GitHub environment.
-1. Search and update TODOs within the code and remove the TODO comments once complete.
+- A Virtual network for hosting the Exadata cluster
+- An Oracle Cloud Infrastructure resource - with a default configuration
+- An Oracle VM Cluster to be deployed on the Oracle Cloud Infrastructure resource
+
+Limitations: This module does not currently handle updates to the Oracle resources, since the underlying resource providers(REST API) do not support Update operations. Hence idempotency is not currently implemented.
+
 
 > [!IMPORTANT]
 > As the overall AVM framework is not GA (generally available) yet - the CI framework and test automation is not fully functional and implemented across all supported languages yet - breaking changes are expected, and additional customer feedback is yet to be gathered and incorporated. Hence, modules **MUST NOT** be published at version `1.0.0` or higher at this time.
