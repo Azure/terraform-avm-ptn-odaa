@@ -208,20 +208,6 @@ The following requirements are needed by this module:
 
 - <a name="requirement_tls"></a> [tls](#requirement\_tls) (4.0.5)
 
-## Providers
-
-The following providers are used by this module:
-
-- <a name="provider_azapi"></a> [azapi](#provider\_azapi) (~> 1.14.0)
-
-- <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) (~> 3.74)
-
-- <a name="provider_local"></a> [local](#provider\_local) (2.5.1)
-
-- <a name="provider_random"></a> [random](#provider\_random) (~> 3.5)
-
-- <a name="provider_tls"></a> [tls](#provider\_tls) (4.0.5)
-
 ## Resources
 
 The following resources are used by this module:
